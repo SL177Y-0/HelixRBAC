@@ -80,7 +80,7 @@ We use the latest and greatest tools to ensure performance and developer happine
 
 ---
 
-## 🚀 Getting Started & Deployment
+## Getting Started & Deployment
 
 Ready to dive in? Follow these simple steps to get HelixRBAC running on your machine or deployed to production.
 
@@ -187,6 +187,23 @@ Built on PostgreSQL and managed via Prisma. Key models:
 *   **Projects:** `/api/projects` (CRUD)
 *   **Tasks:** `/api/tasks` (CRUD, Role-filtered)
 *   **Admin:** `/api/admin/stats`, `/api/admin/audit-logs`
+
+---
+
+## 🧪 Testing & QA Strategy
+
+We ensure stability through a rigorous testing checklist covering all roles and features.
+
+### Core Testing Areas
+*   **Authentication:** Verify Login (Email/Google), Logout, Session persistence, and Route protection.
+*   **Admin Role:** Test User management (CRUD), System stats, and Audit log access.
+*   **Manager Role:** Verify Project creation, Task assignment, and Team oversight.
+*   **User Role:** Ensure access is limited to assigned tasks and personal profile.
+*   **UI/UX:** Check Dark mode, Mobile responsiveness, and Form validation.
+
+### Running Tests
+Currently, we rely on manual verification using our [Testing Checklist](docs/TESTING-CHECKLIST.md).
+*Future Roadmap:* Automated E2E testing with Playwright/Cypress.
 
 ---
 
