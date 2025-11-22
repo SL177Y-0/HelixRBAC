@@ -190,7 +190,7 @@ Built on PostgreSQL and managed via Prisma. Key models:
 
 ---
 
-## 🧪 Testing & QA Strategy
+## Testing & QA Strategy
 
 We ensure stability through a rigorous testing checklist covering all roles and features.
 
@@ -201,20 +201,27 @@ We ensure stability through a rigorous testing checklist covering all roles and 
 *   **User Role:** Ensure access is limited to assigned tasks and personal profile.
 *   **UI/UX:** Check Dark mode, Mobile responsiveness, and Form validation.
 
-### Running Tests
-Currently, we rely on manual verification using our [Testing Checklist](docs/TESTING-CHECKLIST.md).
-*Future Roadmap:* Automated E2E testing with Playwright/Cypress.
 
 ---
 
-## Contributing
+## Development Workflow
 
-Found a bug? Want to add a cool feature? We love contributions!
-1.  Fork the repo.
-2.  Create a new branch (`git checkout -b feature/amazing-feature`).
-3.  Commit your changes.
-4.  Push to the branch.
-5.  Open a Pull Request.
+We follow a structured Git workflow to ensure code quality and history cleanliness.
+
+### Branching Strategy
+*   `main`: Production-ready code.
+*   `feature/*`: New features (e.g., `feature/task-management`).
+*   `fix/*`: Bug fixes (e.g., `fix/login-error`).
+*   `docs/*`: Documentation updates.
+
+### Contribution Steps
+1.  **Fork & Clone:** Get your own copy of the repo.
+2.  **Create Branch:** `git checkout -b feature/amazing-feature`
+3.  **Commit:** Use conventional commits (e.g., `feat: add user profile`).
+4.  **Push:** `git push origin feature/amazing-feature`
+5.  **Pull Request:** Open a PR against the `main` branch.
+
+For a detailed breakdown of our commit history and logical progression, check out the [Git Workflow Guide](docs/GIT-WORKFLOW.md).
 
 ---
 
