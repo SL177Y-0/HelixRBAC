@@ -1,4 +1,4 @@
-# HelixRBAC - [helixrbac.vercel.app](https://helixrbac.vercel.app/)
+# HelixRBAC - [Link](https://helixrbac.vercel.app/)
 
 ### **Secure. Scalable. Simple.**
 *The ultimate starter kit for Role-Based Access Control in Next.js.*
