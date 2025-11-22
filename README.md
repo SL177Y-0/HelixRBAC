@@ -225,3 +225,30 @@ For a detailed breakdown of our commit history and logical progression, check ou
 
 ---
 
+## Access & Usage Guide
+
+Once the app is running, you can log in with these pre-configured test accounts to explore different roles.
+
+### Admin Access
+*   **Email:** `admin@helix.com`
+*   **Password:** `password123`
+*   **Capabilities:** Full system control, User management, Audit logs.
+
+### Manager Access
+*   **Email:** `manager@helix.com`
+*   **Password:** `password123`
+*   **Capabilities:** Create projects, Assign tasks, View team progress.
+
+### User Access
+*   **Email:** `user1@helix.com`
+*   **Password:** `password123`
+*   **Capabilities:** View assigned tasks, Update status, Edit profile.
+
+> **Note:** If these credentials don't work, run `npx prisma db seed` to reset the database.
+
+For a complete walkthrough of features, see the [Master Guide](docs/MASTER-GUIDE.md).
+
+
+
+---
+
