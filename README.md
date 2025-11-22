@@ -80,56 +80,59 @@ We use the latest and greatest tools to ensure performance and developer happine
 
 ---
 
-## Getting Started
+## 🚀 Getting Started & Deployment
 
-Ready to dive in? Follow these simple steps to get HelixRBAC running on your machine.
+Ready to dive in? Follow these simple steps to get HelixRBAC running on your machine or deployed to production.
 
-### 1. Clone the Repository
+### 1. Clone & Install
 ```bash
 git clone https://github.com/yourusername/helix-rbac.git
 cd helix-rbac
-```
-
-### 2. Install Dependencies
-```bash
 npm install
-# or
-yarn install
 ```
 
-### 3. Set Up Environment Variables
-Create a `.env` file in the root directory. You can copy the example if one exists, or use this template:
+### 2. Environment Setup
+Create a `.env` file in the root directory (or copy `.env.local`).
 
 ```env
-# Database Connection
-DATABASE_URL="postgresql://user:password@localhost:5432/helix_rbac?schema=public"
+# Database (PostgreSQL) - Local or Cloud (Neon/Railway/Supabase)
+DATABASE_URL="postgresql://user:password@host:5432/helix_rbac?schema=public"
 
 # NextAuth Configuration
-NEXTAUTH_URL="http://localhost:3000"
+NEXTAUTH_URL="http://localhost:3000" # Use https://your-domain.com for production
 NEXTAUTH_SECRET="your-super-secret-key-change-this"
 
-# Optional: Google Auth (if you want to use it)
+# Optional: Google Auth
 GOOGLE_CLIENT_ID=""
 GOOGLE_CLIENT_SECRET=""
 ```
 
-### 4. Setup the Database
-We use Prisma to manage our database schema. Run these commands to create the tables and add some dummy data.
+### 3. Database Initialization
+We use Prisma to manage our database schema.
 
 ```bash
-# Push the schema to your database
+# Generate Prisma Client
+npx prisma generate
+
+# Push schema to database
 npx prisma db push
 
-# Seed the database with initial users (Admin, Manager, User)
+# Seed initial data (Admin, Manager, User)
 npx prisma db seed
 ```
 
-### 5. Run the App
+### 4. Run Locally
 ```bash
 npm run dev
 ```
+Open [http://localhost:3000](http://localhost:3000).
 
-Open [http://localhost:3000](http://localhost:3000) in your browser. You're live! 🚀
+### 5. Production Deployment (Vercel)
+1.  **Push to GitHub.**
+2.  **Import to Vercel:** Select your repo.
+3.  **Configure Env Vars:** Add `DATABASE_URL`, `NEXTAUTH_SECRET`, etc. in Vercel settings.
+4.  **Deploy:** Vercel will build and deploy your app.
+5.  **Post-Deploy:** Update `NEXTAUTH_URL` to your production domain and check Google OAuth redirect URIs.
 
 ---
 
@@ -157,7 +160,7 @@ src/
 
 ---
 
-## 🏗️ System Architecture
+##  System Architecture
 
 ### Authentication Flow
 1.  **Login:** Users authenticate via Email/Password or Google OAuth (NextAuth.js).
