@@ -4,6 +4,7 @@
 *The ultimate starter kit for Role-Based Access Control in Next.js.*
 
 ---
+
 Think of this project as the "digital traffic controller" for your team's workflow. In any growing application, you need to make sure the right people have access to the right things. You wouldn't want an intern accidentally deleting your entire database, right?
 
 **HelixRBAC** solves this by implementing a robust **Role-Based Access Control (RBAC)** system right out of the box. It's a full-stack task and project management dashboard where:
@@ -15,7 +16,7 @@ Whether you're learning how to build secure apps or looking for a solid foundati
 
 ---
 
-##  How It Works (The Flow)
+## How It Works (The Flow)
 
 Here is a simple visualization of how our security logic works. No complex jargon, just a clear path for every user.
 
@@ -50,7 +51,7 @@ graph TD
 
 ---
 
-##  Key Features
+## Key Features
 
 We've packed this with everything you need to hit the ground running:
 
@@ -160,7 +161,7 @@ src/
 
 ---
 
-##  System Architecture
+## System Architecture
 
 ### Authentication Flow
 1.  **Login:** Users authenticate via Email/Password or Google OAuth (NextAuth.js).
@@ -221,8 +222,6 @@ We follow a structured Git workflow to ensure code quality and history cleanline
 4.  **Push:** `git push origin feature/amazing-feature`
 5.  **Pull Request:** Open a PR against the `main` branch.
 
-For a detailed breakdown of our commit history and logical progression, check out the [Git Workflow Guide](docs/GIT-WORKFLOW.md).
-
 ---
 
 ## Access & Usage Guide
@@ -245,10 +244,4 @@ Once the app is running, you can log in with these pre-configured test accounts 
 *   **Capabilities:** View assigned tasks, Update status, Edit profile.
 
 > **Note:** If these credentials don't work, run `npx prisma db seed` to reset the database.
-
-For a complete walkthrough of features, see the [Master Guide](docs/MASTER-GUIDE.md).
-
-
-
----
 
