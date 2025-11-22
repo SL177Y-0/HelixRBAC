@@ -15,8 +15,8 @@ Think of this project as the "digital traffic controller" for your team's workfl
 Whether you're learning how to build secure apps or looking for a solid foundation for your next SaaS, you're in the right place.
 
 ---
-    ```mermaid
-    flowchart TD
+ ```mermaid
+flowchart TD
 
     %% ---------- STYLES ----------
     classDef start fill:#f7e7ff,stroke:#7a1fa2,stroke-width:2px,color:#000
@@ -51,7 +51,7 @@ Whether you're learning how to build secure apps or looking for a solid foundati
     H --> H1[View My Tasks]:::feature
     H --> H2[Update Task Status]:::feature
     H --> H3[Profile Settings]:::feature
-    ```
+```
 
 ---
 
