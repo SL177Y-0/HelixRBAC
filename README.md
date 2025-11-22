@@ -16,40 +16,42 @@ Whether you're learning how to build secure apps or looking for a solid foundati
 
 ---
 
-flowchart TD
+    flowchart TD
 
-    %% ------------------- STYLES -------------------
+    %% ---------- STYLES ----------
     classDef start fill:#f7e7ff,stroke:#7a1fa2,stroke-width:2px,color:#000
-    classDef decision fill:#dce6ff,stroke:#3657a7,stroke-width:2px,color:#000
-    classDef admin fill:#ffdddd,stroke:#d83c3c,stroke-width:2px
-    classDef manager fill:#ddffdd,stroke:#2e8b57,stroke-width:2px
-    classDef user fill:#ddeaff,stroke:#1e5faf,stroke-width:2px
-    classDef feature fill:#fff,stroke:#999,stroke-width:1px
+    classDef decision fill:#e6eeff,stroke:#4c6ef5,stroke-width:2px,color:#000
+    classDef admin fill:#ffe5e5,stroke:#e03131,stroke-width:2px,color:#000
+    classDef manager fill:#e8ffe8,stroke:#2f9e44,stroke-width:2px,color:#000
+    classDef user fill:#e7f1ff,stroke:#1c7ed6,stroke-width:2px,color:#000
+    classDef feature fill:#fff,stroke:#888,stroke-width:1px,color:#000
 
-    %% ------------------- FLOW -------------------
+    %% ---------- MAIN FLOW ----------
     A[User Visits App]:::start --> B{Has Account?}:::decision
+
     B -- No --> C[Sign Up]:::feature
     B -- Yes --> D[Log In]:::feature
 
     D --> E{Check Role}:::decision
 
-    %% ------------------- ADMIN FLOW -------------------
+    %% ---------- ADMIN ----------
     E -- ADMIN --> F[Admin Dashboard]:::admin
     F --> F1[Manage Users]:::feature
     F --> F2[View Audit Logs]:::feature
     F --> F3[System Stats]:::feature
 
-    %% ------------------- MANAGER FLOW -------------------
+    %% ---------- MANAGER ----------
     E -- MANAGER --> G[Manager Dashboard]:::manager
     G --> G1[Create Projects]:::feature
     G --> G2[Assign Tasks]:::feature
     G --> G3[Track Progress]:::feature
 
-    %% ------------------- USER FLOW -------------------
+    %% ---------- USER ----------
     E -- USER --> H[User Dashboard]:::user
     H --> H1[View My Tasks]:::feature
     H --> H2[Update Task Status]:::feature
     H --> H3[Profile Settings]:::feature
+
 
 ---
 
