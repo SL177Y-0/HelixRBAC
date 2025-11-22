@@ -1,4 +1,7 @@
-export async function changeUserCurrentTeam(userId: string, teamId: number) {
-  console.warn("changeUserCurrentTeam called but Teams are not implemented");
-  return null;
+import prisma from "@/lib/prisma";
+
+export async function getUserById(id: string) {
+  return prisma.user.findUnique({
+    where: { id },
+  });
 }

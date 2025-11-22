@@ -12,8 +12,32 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Plus, Search, MoreVertical, Shield, Mail, User } from "lucide-react"
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogFooter,
+    DialogHeader,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select"
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Label } from "@/components/ui/label"
+import { Plus, Search, MoreVertical, Shield, Mail, User, Loader2, Edit, Trash2, Download } from "lucide-react"
 import { cn } from "@/lib/utils"
+import { exportToCSV } from "@/lib/export-utils"
 
 interface UserData {
     id: string
@@ -22,33 +46,160 @@ interface UserData {
     role: string
     status: string
     lastActive: string
+    isActive: boolean
+    department?: string
 }
 
 export default function UsersPage() {
     const [users, setUsers] = useState<UserData[]>([])
     const [loading, setLoading] = useState(true)
+    const [searchQuery, setSearchQuery] = useState("")
+    
+    // Edit State
+    const [isEditOpen, setIsEditOpen] = useState(false)
+    const [currentUser, setCurrentUser] = useState<UserData | null>(null)
+    const [editFormData, setEditFormData] = useState({
+        role: "",
+        isActive: true
+    })
+
+    // Add State
+    const [isAddOpen, setIsAddOpen] = useState(false)
+    const [addFormData, setAddFormData] = useState({
+        name: "",
+        email: "",
+        password: "",
+        role: "USER",
+        department: ""
+    })
+
+    const [isSubmitting, setIsSubmitting] = useState(false)
+
+    const fetchUsers = async () => {
+        try {
+            const res = await fetch('/api/users')
+            if (res.ok) {
+                const data = await res.json()
+                setUsers(data.map((user: any) => ({
+                    ...user,
+                    status: user.isActive ? 'Active' : 'Inactive',
+                    lastActive: new Date(user.createdAt).toLocaleDateString() // Fallback for now
+                })))
+            }
+        } catch (error) {
+            console.error("Failed to fetch users", error)
+        } finally {
+            setLoading(false)
+        }
+    }
 
     useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                const res = await fetch('/api/users')
-                if (res.ok) {
-                    const data = await res.json()
-                    setUsers(data.map((user: any) => ({
-                        ...user,
-                        status: user.isActive ? 'Active' : 'Inactive',
-                        lastActive: new Date(user.createdAt).toLocaleDateString() // Fallback for now
-                    })))
-                }
-            } catch (error) {
-                console.error("Failed to fetch users", error)
-            } finally {
-                setLoading(false)
-            }
-        }
-
         fetchUsers()
     }, [])
+
+    const handleAdd = async () => {
+        if (!addFormData.name || !addFormData.email || !addFormData.password) {
+            alert("Please fill in all required fields")
+            return
+        }
+
+        setIsSubmitting(true)
+        try {
+            const res = await fetch('/api/users', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(addFormData)
+            })
+
+            if (res.ok) {
+                setIsAddOpen(false)
+                setAddFormData({
+                    name: "",
+                    email: "",
+                    password: "",
+                    role: "USER",
+                    department: ""
+                })
+                fetchUsers()
+            } else {
+                const error = await res.text()
+                alert(error)
+            }
+        } catch (error) {
+            console.error("Failed to create user", error)
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    const handleUpdate = async () => {
+        if (!currentUser) return
+        setIsSubmitting(true)
+        try {
+            const res = await fetch(`/api/users/${currentUser.id}`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    role: editFormData.role,
+                    isActive: editFormData.isActive
+                })
+            })
+
+            if (res.ok) {
+                setIsEditOpen(false)
+                setCurrentUser(null)
+                fetchUsers()
+            }
+        } catch (error) {
+            console.error("Failed to update user", error)
+        } finally {
+            setIsSubmitting(false)
+        }
+    }
+
+    const handleExport = () => {
+        const data = users.map(u => ({
+            Name: u.name,
+            Email: u.email,
+            Role: u.role,
+            Status: u.isActive ? 'Active' : 'Inactive',
+            Department: u.department || 'N/A',
+            Joined: new Date(u.lastActive).toLocaleDateString()
+        }))
+        exportToCSV(data, 'users-list')
+    }
+
+    const handleDelete = async (id: string) => {
+        if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) return
+        try {
+            const res = await fetch(`/api/users/${id}`, {
+                method: 'DELETE'
+            })
+
+            if (res.ok) {
+                fetchUsers()
+            } else {
+                const error = await res.text()
+                alert(error)
+            }
+        } catch (error) {
+            console.error("Failed to delete user", error)
+        }
+    }
+
+    const openEditDialog = (user: UserData) => {
+        setCurrentUser(user)
+        setEditFormData({
+            role: user.role,
+            isActive: user.isActive
+        })
+        setIsEditOpen(true)
+    }
+
+    const filteredUsers = users.filter(u => 
+        u.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        u.email.toLowerCase().includes(searchQuery.toLowerCase())
+    )
 
     return (
         <div className="space-y-8">
@@ -61,34 +212,117 @@ export default function UsersPage() {
                         Manage access and permissions for your team.
                     </p>
                 </div>
-                <Button variant="premium" className="shadow-lg shadow-primary/20">
-                    <Plus className="mr-2 h-4 w-4" /> Add New User
-                </Button>
+                
+                <div className="flex items-center gap-2">
+                    <Button variant="outline" onClick={handleExport}>
+                        <Download className="mr-2 h-4 w-4" /> Export CSV
+                    </Button>
+                    <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
+                        <DialogTrigger asChild>
+                            <Button variant="premium" className="shadow-lg shadow-primary/20">
+                                <Plus className="mr-2 h-4 w-4" /> Add New User
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[500px]">
+                            <DialogHeader>
+                                <DialogTitle>Create New User</DialogTitle>
+                                <DialogDescription>
+                                    Add a new user to your organization. They will receive an email to set their password.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="name">Full Name</Label>
+                                    <Input 
+                                        id="name" 
+                                        value={addFormData.name}
+                                        onChange={(e) => setAddFormData({...addFormData, name: e.target.value})}
+                                        placeholder="John Doe" 
+                                    />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="email">Email Address</Label>
+                                    <Input 
+                                        id="email" 
+                                        type="email"
+                                        value={addFormData.email}
+                                        onChange={(e) => setAddFormData({...addFormData, email: e.target.value})}
+                                        placeholder="john@example.com" 
+                                    />
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor="password">Initial Password</Label>
+                                    <Input 
+                                        id="password" 
+                                        type="password"
+                                        value={addFormData.password}
+                                        onChange={(e) => setAddFormData({...addFormData, password: e.target.value})}
+                                        placeholder="••••••••" 
+                                    />
+                                </div>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="role">Role</Label>
+                                        <Select 
+                                            value={addFormData.role} 
+                                            onValueChange={(value) => setAddFormData({...addFormData, role: value})}
+                                        >
+                                            <SelectTrigger>
+                                                <SelectValue placeholder="Select role" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="USER">User</SelectItem>
+                                                <SelectItem value="MANAGER">Manager</SelectItem>
+                                                <SelectItem value="ADMIN">Admin</SelectItem>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor="department">Department (Optional)</Label>
+                                        <Input 
+                                            id="department" 
+                                            value={addFormData.department}
+                                            onChange={(e) => setAddFormData({...addFormData, department: e.target.value})}
+                                            placeholder="Engineering" 
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button variant="outline" onClick={() => setIsAddOpen(false)}>Cancel</Button>
+                                <Button onClick={handleAdd} disabled={isSubmitting}>
+                                    {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    Create User
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </div>
             </div>
 
             <Card className="glass-card">
                 <CardHeader>
-                    <div className="flex items-center justify-between">
-                        <div>
-                            <CardTitle>All Users</CardTitle>
-                            <CardDescription>A list of all users in your organization.</CardDescription>
-                        </div>
-                        <div className="relative w-64">
+                    <CardTitle>Users</CardTitle>
+                    <CardDescription>
+                        A list of all users in your organization including their name, role, and status.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="flex items-center gap-4 mb-4">
+                        <div className="relative flex-1">
                             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
                             <Input
-                                type="search"
                                 placeholder="Search users..."
-                                className="pl-9 bg-background/50"
+                                className="pl-9"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
                             />
                         </div>
                     </div>
-                </CardHeader>
-                <CardContent>
+                    
                     {loading ? (
-                        <div className="space-y-4">
-                            {[1, 2, 3, 4, 5].map((i) => (
-                                <div key={i} className="h-16 w-full animate-pulse rounded-lg bg-muted/50" />
-                            ))}
+                        <div className="flex justify-center py-8">
+                            <Loader2 className="h-8 w-8 animate-spin text-primary" />
                         </div>
                     ) : (
                         <Table>
@@ -97,12 +331,12 @@ export default function UsersPage() {
                                     <TableHead>User</TableHead>
                                     <TableHead>Role</TableHead>
                                     <TableHead>Status</TableHead>
-                                    <TableHead>Last Active</TableHead>
+                                    <TableHead>Joined</TableHead>
                                     <TableHead className="text-right">Actions</TableHead>
                                 </TableRow>
                             </TableHeader>
                             <TableBody>
-                                {users.map((user) => (
+                                {filteredUsers.map((user) => (
                                     <TableRow key={user.id} className="group">
                                         <TableCell>
                                             <div className="flex items-center gap-3">
@@ -138,9 +372,21 @@ export default function UsersPage() {
                                             {user.lastActive}
                                         </TableCell>
                                         <TableCell className="text-right">
-                                            <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <MoreVertical className="h-4 w-4" />
-                                            </Button>
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 transition-opacity">
+                                                        <MoreVertical className="h-4 w-4" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end">
+                                                    <DropdownMenuItem onClick={() => openEditDialog(user)}>
+                                                        <Edit className="mr-2 h-4 w-4" /> Edit Role/Status
+                                                    </DropdownMenuItem>
+                                                    <DropdownMenuItem className="text-destructive" onClick={() => handleDelete(user.id)}>
+                                                        <Trash2 className="mr-2 h-4 w-4" /> Delete User
+                                                    </DropdownMenuItem>
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
                                         </TableCell>
                                     </TableRow>
                                 ))}
@@ -149,6 +395,57 @@ export default function UsersPage() {
                     )}
                 </CardContent>
             </Card>
+
+            <Dialog open={isEditOpen} onOpenChange={setIsEditOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Edit User</DialogTitle>
+                        <DialogDescription>
+                            Update role and status for {currentUser?.name}.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="role">Role</Label>
+                            <Select 
+                                value={editFormData.role} 
+                                onValueChange={(value) => setEditFormData({...editFormData, role: value})}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select role" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="USER">User</SelectItem>
+                                    <SelectItem value="MANAGER">Manager</SelectItem>
+                                    <SelectItem value="ADMIN">Admin</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="status">Status</Label>
+                            <Select 
+                                value={editFormData.isActive ? "true" : "false"} 
+                                onValueChange={(value) => setEditFormData({...editFormData, isActive: value === "true"})}
+                            >
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select status" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="true">Active</SelectItem>
+                                    <SelectItem value="false">Inactive</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsEditOpen(false)}>Cancel</Button>
+                        <Button onClick={handleUpdate} disabled={isSubmitting}>
+                            {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                            Save Changes
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

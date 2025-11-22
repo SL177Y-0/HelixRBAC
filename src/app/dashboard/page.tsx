@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { useSession } from "next-auth/react"
+import { useRouter } from "next/navigation"
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ArrowRight, Zap, Shield, Activity, Loader2 } from "lucide-react"
@@ -9,6 +10,7 @@ import Link from "next/link"
 
 export default function DashboardPage() {
     const { data: session } = useSession()
+    const router = useRouter()
     const [loading, setLoading] = useState(true)
     const [stats, setStats] = useState({
         projectsCount: 0,
@@ -16,6 +18,15 @@ export default function DashboardPage() {
     })
 
     useEffect(() => {
+        if (session?.user?.role === 'ADMIN') {
+            router.replace('/dashboard/admin')
+            return
+        }
+        if (session?.user?.role === 'MANAGER') {
+            router.replace('/dashboard/manager')
+            return
+        }
+
         const fetchData = async () => {
             try {
                 const [projectsRes, tasksRes] = await Promise.all([
@@ -27,7 +38,7 @@ export default function DashboardPage() {
                     const projects = await projectsRes.json()
                     const tasks = await tasksRes.json()
                     setStats({
-                        projectsCount: Array.isArray(projects) ? projects.length : 0,
+                        projectsCount: Array.isArray(projects) ? projects.filter((p: any) => p.status === 'ACTIVE').length : 0,
                         activeTasksCount: Array.isArray(tasks) ? tasks.filter((t: any) => t.status !== 'DONE').length : 0,
                     })
                 }
@@ -41,7 +52,7 @@ export default function DashboardPage() {
         if (session) {
             fetchData()
         }
-    }, [session])
+    }, [session, router])
 
     return (
         <div className="space-y-8">
@@ -58,7 +69,7 @@ export default function DashboardPage() {
                 <Card className="glass-card border-l-4 border-l-primary">
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                         <CardTitle className="text-sm font-medium text-muted-foreground">
-                            Total Projects
+                            Active Projects
                         </CardTitle>
                         <Zap className="h-4 w-4 text-primary" />
                     </CardHeader>
@@ -112,14 +123,18 @@ export default function DashboardPage() {
                         <CardDescription>Common tasks you perform</CardDescription>
                     </CardHeader>
                     <CardContent className="grid gap-4">
-                        <Button variant="premium" className="w-full justify-between group">
-                            Create New Project
-                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                        </Button>
-                        <Button variant="outline" className="w-full justify-between group hover:border-primary/50">
-                            View Team Reports
-                            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-                        </Button>
+                        <Link href="/dashboard/manager/projects" className="w-full">
+                            <Button variant="premium" className="w-full justify-between group">
+                                Create New Project
+                                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                            </Button>
+                        </Link>
+                        <Link href="/dashboard/admin/reports" className="w-full">
+                            <Button variant="outline" className="w-full justify-between group hover:border-primary/50">
+                                View Team Reports
+                                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+                            </Button>
+                        </Link>
                     </CardContent>
                 </Card>
 
