@@ -15,7 +15,7 @@ Think of this project as the "digital traffic controller" for your team's workfl
 Whether you're learning how to build secure apps or looking for a solid foundation for your next SaaS, you're in the right place.
 
 ---
-
+    ```mermaid
     flowchart TD
 
     %% ---------- STYLES ----------
